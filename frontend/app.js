@@ -1,11 +1,15 @@
 /**
  * FreshSense AI - Frontend Application Controller
- * Handles navigation, role switching, POS terminal logic, and inventory synchronization.
+ * Handles navigation, role switching, POS terminal logic, inventory synchronization,
+ * Chart.js rendering, and dynamic view loading.
  */
 
 let currentRole = 'Manager';
 let currentStore = 'store_mumbai';
 let currentPaymentMethod = 'UPI';
+
+let revenueChartInstance = null;
+let categoryChartInstance = null;
 
 let inventoryData = [
     { id: 1, name: "Amul Taaza Milk (500ml)", category: "Dairy & Eggs", stock: 120, price: 32, expiry: "1 Days", status: "Critical", image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=200" },
@@ -42,19 +46,45 @@ function switchView(viewId) {
         activeNav.classList.add('bg-emerald-900/40', 'text-emerald-300', 'border', 'border-emerald-800/50');
     }
 
-    if (viewId === 'pos') {
+    // Trigger view-specific renders
+    if (viewId === 'dashboard') {
+        initDashboardCharts();
+    } else if (viewId === 'inventory') {
+        renderInventoryTable();
+    } else if (viewId === 'pos') {
         renderPosProductGrid();
+    } else if (viewId === 'alerts') {
+        renderAlertsList();
+    } else if (viewId === 'recommendations') {
+        renderMarkdownCards();
+    }
+
+    // Close mobile sidebar on navigation if open
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+        sidebar.classList.add('-translate-x-full');
     }
 }
 
 function quickRoleLogin(role) {
     currentRole = role;
-    document.getElementById('userRoleBadge').innerText = role === 'Admin' ? 'Store Admin' : role === 'Manager' ? 'Inventory Manager' : role === 'Cashier' ? 'POS Checkout Operator' : 'Floor Staff';
-    document.getElementById('userName').innerText = role === 'Cashier' ? 'Suresh Kumar' : 'Anvit Jain';
-    document.getElementById('userAvatar').innerText = role === 'Cashier' ? 'SK' : 'AJ';
+    const badge = document.getElementById('userRoleBadge');
+    const name = document.getElementById('userName');
+    const avatar = document.getElementById('userAvatar');
 
-    if (role === 'Cashier') {
+    if (badge) badge.innerText = role === 'Admin' ? 'Store Admin' : role === 'Manager' ? 'Inventory Manager' : role === 'Cashier' ? 'POS Checkout Operator' : 'Floor Staff';
+    if (name) name.innerText = role === 'Cashier' ? 'Suresh Kumar' : 'Anvit Jain';
+    if (avatar) avatar.innerText = role === 'Cashier' ? 'SK' : 'AJ';
+
+    // Direct user to appropriate view based on persona
+    if (role === 'Admin') {
+        switchView('dashboard');
+    } else if (role === 'Manager') {
+        switchView('inventory');
+    } else if (role === 'Cashier') {
         switchView('pos');
+    } else if (role === 'Staff') {
+        switchView('alerts');
     } else {
         switchView('landing');
     }
@@ -71,8 +101,287 @@ function toggleAuth() {
 
 function changeStoreLocation(storeVal) {
     currentStore = storeVal;
+    if (document.getElementById('view-dashboard') && !document.getElementById('view-dashboard').classList.contains('hidden')) {
+        initDashboardCharts();
+    }
 }
 
+function toggleMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('-translate-x-full');
+    }
+}
+
+function handleGlobalSearch(event) {
+    const query = event.target.value.toLowerCase().trim();
+    if (!query) return;
+
+    if (event.key === 'Enter') {
+        switchView('inventory');
+        const searchInput = document.getElementById('inventorySearch');
+        if (searchInput) {
+            searchInput.value = query;
+            renderInventoryTable();
+        }
+    }
+}
+
+/* ==========================================================================
+   EXECUTIVE DASHBOARD CHARTS
+   ========================================================================== */
+function initDashboardCharts() {
+    const ctxRevenue = document.getElementById('chartRevenueTrend')?.getContext('2d');
+    const ctxCategory = document.getElementById('chartCategoryShare')?.getContext('2d');
+
+    if (ctxRevenue) {
+        if (revenueChartInstance) revenueChartInstance.destroy();
+        revenueChartInstance = new Chart(ctxRevenue, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [
+                    {
+                        label: 'Sales Revenue (₹)',
+                        data: [120000, 135000, 128000, 142000, 155000, 178000, 148250],
+                        borderColor: '#16a34a',
+                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Wastage Loss (₹)',
+                        data: [18000, 14000, 11000, 9500, 8000, 7200, 5400],
+                        borderColor: '#e11d48',
+                        backgroundColor: 'rgba(225, 29, 72, 0.05)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    }
+
+    if (ctxCategory) {
+        if (categoryChartInstance) categoryChartInstance.destroy();
+        categoryChartInstance = new Chart(ctxCategory, {
+            type: 'doughnut',
+            data: {
+                labels: ['Dairy & Paneer', 'Vegetables', 'Fruits', 'Atta & Grains'],
+                datasets: [{
+                    data: [35, 30, 20, 15],
+                    backgroundColor: ['#16a34a', '#eab308', '#f97316', '#64748b']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+}
+
+/* ==========================================================================
+   FRESH INVENTORY TABLE LOGIC
+   ========================================================================== */
+function renderInventoryTable() {
+    const tbody = document.getElementById('inventoryTableBody');
+    if (!tbody) return;
+
+    const searchQuery = document.getElementById('inventorySearch')?.value.toLowerCase() || '';
+    const selectedCat = document.getElementById('inventoryCategoryFilter')?.value || 'all';
+
+    const filtered = inventoryData.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery);
+        const matchesCat = selectedCat === 'all' || item.category === selectedCat;
+        return matchesSearch && matchesCat;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400 italic">No inventory items matched your criteria.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(item => `
+        <tr class="hover:bg-slate-50 transition">
+            <td class="p-3.5 font-bold text-slate-800 flex items-center gap-2">
+                <img src="${item.image}" class="w-8 h-8 rounded-lg object-cover" />
+                <span>${item.name}</span>
+            </td>
+            <td class="p-3.5">${item.category}</td>
+            <td class="p-3.5 font-bold text-slate-900">₹${item.price}</td>
+            <td class="p-3.5">
+                <span class="font-bold">${item.stock}</span> units
+            </td>
+            <td class="p-3.5 text-slate-500">${item.expiry}</td>
+            <td class="p-3.5">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                    item.status === 'Critical' ? 'bg-rose-100 text-rose-700' :
+                    item.status === 'Warning' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                }">${item.status}</span>
+            </td>
+            <td class="p-3.5 text-right space-x-1">
+                <button onclick="adjustStock(${item.id}, 10)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-bold">+10 Stock</button>
+                <button onclick="adjustStock(${item.id}, -10)" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-bold">-10 Stock</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function adjustStock(productId, amount) {
+    const item = inventoryData.find(i => i.id === productId);
+    if (item) {
+        item.stock = Math.max(0, item.stock + amount);
+        renderInventoryTable();
+        renderPosProductGrid();
+    }
+}
+
+function promptAddNewItem() {
+    const name = prompt("Enter product name:", "Fresh Paneer (500g)");
+    if (!name) return;
+    const category = prompt("Enter category (Dairy & Eggs / Vegetables / Fruits / Atta & Grains):", "Dairy & Eggs");
+    const price = parseInt(prompt("Enter price in ₹:", "180")) || 100;
+    const stock = parseInt(prompt("Enter initial stock count:", "50")) || 50;
+
+    const newItem = {
+        id: inventoryData.length + 1,
+        name,
+        category,
+        stock,
+        price,
+        expiry: "5 Days",
+        status: "Good",
+        image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&q=80&w=200"
+    };
+
+    inventoryData.push(newItem);
+    renderInventoryTable();
+    renderPosProductGrid();
+    alert(`Successfully added ${name} to store inventory!`);
+}
+
+/* ==========================================================================
+   ALERTS & RISKS
+   ========================================================================== */
+function renderAlertsList() {
+    const container = document.getElementById('alertsListContainer');
+    if (!container) return;
+
+    const criticalItems = inventoryData.filter(i => i.status === 'Critical' || i.status === 'Warning');
+
+    container.innerHTML = criticalItems.map(item => `
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 ${item.status === 'Critical' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'} rounded-xl text-lg font-bold">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-slate-900 text-sm">${item.name}</div>
+                    <div class="text-xs text-slate-500">Expiry: <span class="font-bold text-rose-600">${item.expiry} remaining</span> • Stock: ${item.stock} units</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="applySingleMarkdown(${item.id}, 20)" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-sm">
+                    Apply 20% Markdown
+                </button>
+                <button onclick="markSpoiled(${item.id})" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">
+                    Mark Spoiled
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function applySingleMarkdown(id, percent) {
+    const item = inventoryData.find(i => i.id === id);
+    if (item) {
+        item.price = Math.round(item.price * (1 - percent / 100));
+        alert(`Applied ${percent}% discount to ${item.name}! New price: ₹${item.price}`);
+        renderAlertsList();
+        renderInventoryTable();
+        renderPosProductGrid();
+    }
+}
+
+function markSpoiled(id) {
+    const item = inventoryData.find(i => i.id === id);
+    if (item) {
+        item.stock = 0;
+        alert(`${item.name} marked as spoiled/damaged and removed from active stock.`);
+        renderAlertsList();
+        renderInventoryTable();
+        renderPosProductGrid();
+    }
+}
+
+function triggerAutoMarkdowns() {
+    inventoryData.forEach(item => {
+        if (item.status === 'Critical') {
+            item.price = Math.round(item.price * 0.75); // 25% discount
+        }
+    });
+    alert("AI Auto-Markdown applied 25% discount to all critical near-expiry items!");
+    renderAlertsList();
+    renderInventoryTable();
+    renderPosProductGrid();
+}
+
+/* ==========================================================================
+   AI MARKDOWNS
+   ========================================================================== */
+function renderMarkdownCards() {
+    const container = document.getElementById('markdownCardsContainer');
+    if (!container) return;
+
+    const criticalItems = inventoryData.filter(i => i.status === 'Critical' || i.status === 'Warning');
+
+    container.innerHTML = criticalItems.map(item => `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+            <div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 uppercase">AI Recommendation</span>
+                <h4 class="font-bold text-slate-900 text-sm mt-2">${item.name}</h4>
+                <p class="text-xs text-slate-500 mt-1">Expiry in <strong>${item.expiry}</strong>. Recommend 20% markdown to sell ${item.stock} remaining units.</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                    <span class="line-through text-xs text-slate-400">₹${item.price}</span>
+                    <span class="text-sm font-extrabold text-brand-700 ml-1">₹${Math.round(item.price * 0.8)}</span>
+                </div>
+                <button onclick="applySingleMarkdown(${item.id}, 20)" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-sm">
+                    Accept & Apply
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+/* ==========================================================================
+   REPORTS & AUDIT EXPORT
+   ========================================================================== */
+function downloadReport() {
+    const csvContent = "data:text/csv;charset=utf-8,Item Name,Category,Price (INR),Stock,Status\n" +
+        inventoryData.map(e => `"${e.name}","${e.category}",${e.price},${e.stock},"${e.status}"`).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `FreshSense_Inventory_Audit_${currentStore}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+/* ==========================================================================
+   POS TERMINAL FUNCTIONS
+   ========================================================================== */
 function renderPosProductGrid() {
     const grid = document.getElementById('posProductGrid');
     if (!grid) return;
