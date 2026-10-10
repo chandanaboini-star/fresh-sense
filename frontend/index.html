@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshSense AI - Smart Indian Food Waste & Inventory Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .hero-bg-overlay {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(21, 128, 61, 0.78) 55%, rgba(15, 23, 42, 0.85) 100%),
+                        url('https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-brand-600 selection:text-white">
+
+    <div id="app" class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- TOP NAVBAR -->
+        <header class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 z-20 shadow-sm">
+            <div class="flex items-center gap-3">
+                <button id="mobileMenuBtn" class="md:hidden text-slate-700 hover:text-slate-900 p-1.5 rounded-lg border border-slate-200">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('landing')">
+                    <div class="bg-gradient-to-tr from-slate-900 to-emerald-600 text-white p-2 rounded-xl shadow-md">
+                        <i class="fa-solid fa-leaf text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-lg tracking-tight text-slate-900">FreshSense <span class="text-brand-600">AI</span></span>
+                        <span class="hidden sm:inline-block text-[10px] uppercase font-bold tracking-wider text-emerald-800 ml-2 px-2 py-0.5 bg-emerald-50 rounded-full border border-emerald-200">India Edition</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- POS Shortcut Button -->
+                <button onclick="switchView('pos')" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-cash-register"></i>
+                    <span class="hidden sm:inline">Launch POS Terminal</span>
+                </button>
+
+                <!-- Global Search -->
+                <div class="relative hidden sm:block w-52">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="globalSearchInput" onkeyup="handleGlobalSearch(event)" placeholder="Search Amul, Paneer..." class="w-full bg-slate-50 text-xs pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-600">
+                </div>
+
+                <!-- Notifications Pill -->
+                <button onclick="switchView('alerts')" class="relative p-2 text-slate-600 hover:text-brand-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <i class="fa-regular fa-bell text-lg"></i>
+                    <span id="unreadAlertCount" class="absolute top-1 right-1 bg-brand-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">5</span>
+                </button>
+
+                <!-- Current User Profile Pill -->
+                <div id="userHeaderProfile" class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                    <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center border border-slate-300" id="userAvatar">
+                        AJ
+                    </div>
+                    <div class="hidden lg:block text-left">
+                        <div class="text-xs font-bold text-slate-900 leading-tight" id="userName">Anvit Jain</div>
+                        <div class="text-[10px] font-medium text-slate-500" id="userRoleBadge">Inventory Manager</div>
+                    </div>
+                    <button id="authBtn" onclick="toggleAuth()" class="ml-1 text-xs text-slate-400 hover:text-slate-700 p-1" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN BODY CONTAINER -->
+        <div class="flex-1 flex overflow-hidden relative">
+
+            <!-- SIDEBAR NAVIGATION -->
+            <aside id="sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 transition-all duration-300 absolute md:relative z-30 h-full -translate-x-full md:translate-x-0 shadow-xl border-r border-slate-800">
+                <div class="p-4 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Navigation</span>
+                    <i class="fa-solid fa-seedling text-brand-500"></i>
+                </div>
+                <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar">
+                    <a href="#" onclick="switchView('landing')" id="nav-landing" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-house w-5 text-center text-slate-400"></i> Home / Portal
+                    </a>
+                    <a href="#" onclick="switchView('pos')" id="nav-pos" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all bg-emerald-900/40 text-emerald-300 border border-emerald-800/50">
+                        <i class="fa-solid fa-cash-register w-5 text-center text-emerald-400"></i> POS Billing Terminal
+                    </a>
+                    <a href="#" onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-chart-line w-5 text-center text-slate-400"></i> Executive Dashboard
+                    </a>
+                    <a href="#" onclick="switchView('inventory')" id="nav-inventory" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-boxes-stacked w-5 text-center text-slate-400"></i> Fresh Inventory
+                    </a>
+                    <a href="#" onclick="switchView('alerts')" id="nav-alerts" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-triangle-exclamation w-5 text-center text-rose-400"></i> Alerts & Risks
+                        <span class="ml-auto bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">3 High</span>
+                    </a>
+                    <a href="#" onclick="switchView('recommendations')" id="nav-recommendations" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles w-5 text-center text-amber-300"></i> AI Markdowns
+                    </a>
+                    <a href="#" onclick="switchView('reports')" id="nav-reports" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-file-contract w-5 text-center text-emerald-400"></i> Reports & Analytics
+                    </a>
+                    <a href="#" onclick="switchView('settings')" id="nav-settings" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-gear w-5 text-center text-slate-400"></i> System Settings
+                    </a>
+                </nav>
+
+                <div class="p-4 border-t border-slate-800 bg-slate-950">
+                    <div class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-store text-emerald-500"></i> Indian Store Branch
+                    </div>
+                    <select id="storeSelector" onchange="changeStoreLocation(this.value)" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl p-2.5 focus:outline-none focus:border-brand-500 font-medium">
+                        <option value="store_mumbai">Mumbai Central Superstore</option>
+                        <option value="store_bengaluru">Bengaluru Indiranagar Mart</option>
+                        <option value="store_delhi">Delhi NCR Fresh Hub</option>
+                        <option value="store_hyderabad">Hyderabad HiTech City</option>
+                        <option value="store_chennai">Chennai Anna Nagar</option>
+                    </select>
+                </div>
+            </aside>
+
+            <main class="flex-1 bg-slate-50 overflow-y-auto custom-scrollbar p-4 md:p-6" id="mainContent">
+
+                <!-- SECTION 1: LANDING & LOGIN PAGE -->
+                <section id="view-landing" class="view-panel space-y-8 max-w-6xl mx-auto">
+                    <!-- Hero Banner -->
+                    <div class="relative rounded-3xl hero-bg-overlay text-white p-6 md:p-10 shadow-2xl overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8 border border-slate-800">
+                        <div class="max-w-xl space-y-4 z-10">
+                            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-full text-emerald-300 text-xs font-bold shadow-lg">
+                                <i class="fa-solid fa-sparkles text-brand-400"></i> AI Produce Intelligence for Indian Retail
+                            </div>
+                            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight drop-shadow-md">
+                                Less Waste. More Profit. <span class="text-emerald-400 underline decoration-brand-500 decoration-4">A Greener Tomorrow.</span>
+                            </h1>
+                            <p class="text-slate-200 text-sm md:text-base leading-relaxed drop-shadow">
+                                AI-powered product intelligence to reduce food waste, optimize markdown schedules for Indian perishables, and keep fresh produce moving off your shelves.
+                            </p>
+                            <div class="grid grid-cols-2 gap-3 text-xs font-semibold text-slate-200 pt-2">
+                                <div class="flex items-center gap-2 bg-black/30 p-2 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-circle-check text-brand-400"></i> Real-time POS Billing Sync</div>
+                                <div class="flex items-center gap-2 bg-black/30 p-2 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-circle-check text-brand-400"></i> Rupee (₹) Pricing & Tax</div>
+                                <div class="flex items-center gap-2 bg-black/30 p-2 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-circle-check text-brand-400"></i> FEFO Expiry Auto-Deduction</div>
+                                <div class="flex items-center gap-2 bg-black/30 p-2 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-circle-check text-brand-400"></i> Automated Low Stock Alerts</div>
+                            </div>
+                        </div>
+
+                        <!-- Sign In Form Card -->
+                        <div class="w-full lg:w-96 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 text-slate-800 z-10 border border-slate-100">
+                            <div class="text-center mb-6">
+                                <div class="w-10 h-10 rounded-full bg-emerald-100 text-brand-700 flex items-center justify-center mx-auto mb-2 text-lg">
+                                    <i class="fa-solid fa-leaf"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-slate-900">Welcome Back</h2>
+                                <p class="text-xs text-slate-500 mt-0.5">Sign in to your Indian store console</p>
+                            </div>
+                            <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+                                    <input type="email" id="loginEmail" value="anvit.jain@freshsense.in" required class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-xs font-bold text-slate-700">Password</label>
+                                        <a href="#" class="text-[11px] text-brand-700 font-semibold hover:underline">Forgot?</a>
+                                    </div>
+                                    <input type="password" id="loginPassword" value="••••••••••••" required class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                                </div>
+                                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-3 rounded-xl shadow-lg shadow-brand-600/30 transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-right-to-bracket"></i> Sign In to Console
+                                </button>
+                            </form>
+                            <div class="relative my-4">
+                                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
+                                <div class="relative flex justify-center text-[10px] uppercase font-bold"><span class="bg-white px-2 text-slate-400">Or continue with</span></div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="quickRoleLogin('Admin')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
+                                    <i class="fa-brands fa-google text-red-500"></i> Google
+                                </button>
+                                <button onclick="quickRoleLogin('Manager')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
+                                    <i class="fa-brands fa-apple text-slate-900"></i> Apple
+                                </button>
+                                <button onclick="quickRoleLogin('Cashier')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
+                                    <i class="fa-brands fa-microsoft text-blue-500"></i> POS
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Persona Switcher Grid with Cashier Included -->
+                    <div>
+                        <div class="text-center mb-6">
+                            <h3 class="text-xl font-bold text-slate-900">Choose How You Want to Access the System</h3>
+                            <p class="text-xs text-slate-500 mt-1">Select a store role persona below to instantly preview customized dashboards</p>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Admin Role Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all text-center flex flex-col justify-between">
+                                <div>
+                                    <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-800 mx-auto flex items-center justify-center text-lg mb-3 font-bold">
+                                        <i class="fa-solid fa-user-gear"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Store Admin</h4>
+                                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                                        Full multi-store privileges, Rupee sales, and system configuration.
+                                    </p>
+                                </div>
+                                <button onclick="quickRoleLogin('Admin')" class="mt-4 w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                                    Admin View
+                                </button>
+                            </div>
+
+                            <!-- Inventory Manager Card -->
+                            <div class="bg-white p-5 rounded-2xl border-2 border-brand-600 shadow-md text-center flex flex-col justify-between relative">
+                                <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase">Manager</span>
+                                <div>
+                                    <div class="w-10 h-10 rounded-2xl bg-brand-100 text-brand-700 mx-auto flex items-center justify-center text-lg mb-3 font-bold">
+                                        <i class="fa-solid fa-boxes-packing"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Inventory Manager</h4>
+                                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                                        Monitor stock decay, dynamic discounts, and supply replenishment.
+                                    </p>
+                                </div>
+                                <button onclick="quickRoleLogin('Manager')" class="mt-4 w-full py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors">
+                                    Manager View
+                                </button>
+                            </div>
+
+                            <!-- Cashier / POS Billing Card (NEW) -->
+                            <div class="bg-emerald-50 p-5 rounded-2xl border-2 border-emerald-500 shadow-md text-center flex flex-col justify-between relative">
+                                <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase">Checkout POS</span>
+                                <div>
+                                    <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white mx-auto flex items-center justify-center text-lg mb-3 font-bold shadow-md">
+                                        <i class="fa-solid fa-cash-register"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Store Cashier / POS</h4>
+                                    <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                                        Scan grocery barcodes, bill items in Rupees, auto-deduct live stock.
+                                    </p>
+                                </div>
+                                <button onclick="quickRoleLogin('Cashier')" class="mt-4 w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors">
+                                    Open POS Terminal
+                                </button>
+                            </div>
+
+                            <!-- Store Staff Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all text-center flex flex-col justify-between">
+                                <div>
+                                    <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-800 mx-auto flex items-center justify-center text-lg mb-3 font-bold">
+                                        <i class="fa-solid fa-barcode"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Floor Staff</h4>
+                                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                                        Scan damaged goods, shelf restock, and log spoiled wastage.
+                                    </p>
+                                </div>
+                                <button onclick="quickRoleLogin('Staff')" class="mt-4 w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                                    Floor Staff View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: CASHIER / POS BILLING TERMINAL -->
+                <section id="view-pos" class="view-panel space-y-6 hidden max-w-7xl mx-auto">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-4 rounded-2xl text-white shadow-md border border-slate-800">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-emerald-600 rounded-xl text-lg font-bold text-white">
+                                <i class="fa-solid fa-cash-register"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-lg font-bold">Store Checkout POS Billing Terminal</h1>
+                                <p class="text-xs text-slate-400">Cashier Counter #02 • <span class="text-emerald-400 font-medium" id="posCashierName">Suresh Kumar</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right hidden sm:block">
+                                <div class="text-xs font-bold text-emerald-400">Live Inventory Sync Enabled</div>
+                                <div class="text-[10px] text-slate-400">Stock updates instantly upon billing</div>
+                            </div>
+                            <button onclick="clearPosCart()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700">
+                                <i class="fa-solid fa-trash-can mr-1"></i> Clear Billing Cart
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div class="lg:col-span-7 space-y-4">
+                            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex gap-2">
+                                <div class="relative flex-1">
+                                    <i class="fa-solid fa-barcode absolute left-3 top-3 text-slate-400 text-sm"></i>
+                                    <input type="text" id="posSearch" oninput="renderPosProductGrid()" placeholder="Scan barcode or type grocery item name..." class="w-full bg-slate-50 text-xs pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-600">
+                                </div>
+                                <select id="posCategory" onchange="renderPosProductGrid()" class="bg-slate-50 border border-slate-200 text-xs rounded-xl p-2 font-medium focus:outline-none">
+                                    <option value="all">All Items</option>
+                                    <option value="Dairy & Eggs">Dairy & Paneer</option>
+                                    <option value="Vegetables">Vegetables</option>
+                                    <option value="Fruits">Fruits</option>
+                                    <option value="Atta & Grains">Atta & Grains</option>
+                                </select>
+                            </div>
+
+                            <div id="posProductGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[550px] overflow-y-auto custom-scrollbar p-1"></div>
+                        </div>
+
+                        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-md p-5 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                                    <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                        <i class="fa-solid fa-cart-shopping text-brand-600"></i> Customer Bill Cart
+                                    </h3>
+                                    <span class="text-xs font-semibold text-slate-500" id="cartItemCount">0 items</span>
+                                </div>
+
+                                <div id="posCartList" class="divide-y divide-slate-100 max-h-64 overflow-y-auto custom-scrollbar my-2">
+                                    <div class="py-8 text-center text-slate-400 text-xs italic">
+                                        No items added. Click grocery cards on the left or scan barcode.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-200 pt-3 space-y-3">
+                                <div class="space-y-1.5 text-xs text-slate-600">
+                                    <div class="flex justify-between">
+                                        <span>Subtotal</span>
+                                        <span id="posSubtotal" class="font-bold text-slate-800">₹0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-emerald-600 font-medium">
+                                        <span>AI Near-Expiry Discounts Applied</span>
+                                        <span id="posDiscount">-₹0.00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>GST Tax (5%)</span>
+                                        <span id="posTax">₹0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                                        <span>Total Payable</span>
+                                        <span id="posGrandTotal" class="text-brand-700">₹0.00</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2 pt-1">
+                                    <button onclick="setPaymentMethod('UPI')" id="pay-UPI" class="pay-btn p-2 rounded-xl text-xs font-bold border-2 border-brand-600 bg-emerald-50 text-brand-800 flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-qrcode"></i> UPI / QR
+                                    </button>
+                                    <button onclick="setPaymentMethod('Cash')" id="pay-Cash" class="pay-btn p-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 flex items-center justify-center gap-1 hover:bg-slate-50">
+                                        <i class="fa-solid fa-money-bill"></i> Cash
+                                    </button>
+                                    <button onclick="setPaymentMethod('Card')" id="pay-Card" class="pay-btn p-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 flex items-center justify-center gap-1 hover:bg-slate-50">
+                                        <i class="fa-solid fa-credit-card"></i> Card
+                                    </button>
+                                </div>
+
+                                <button onclick="completeCheckoutTransaction()" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-brand-600/30 transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-circle-check"></i> Complete Billing & Deduct Stock (₹)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
