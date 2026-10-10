@@ -3,1163 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Fresh Sense | Agentic AI Grocery Intelligence</title>
-
+    <title>FreshSense AI - Smart Indian Food Waste & Inventory Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            font-family: Inter, system-ui, sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .hero-bg-overlay {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(21, 128, 61, 0.78) 55%, rgba(15, 23, 42, 0.85) 100%),
+                        url('https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
         }
-
-        .hidden {
-            display: none !important;
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-
-        .nav-item.active {
-            background: #064e3b;
-            color: #a7f3d0;
-            border: 1px solid #047857;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
         }
-
-        .card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,.03);
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
         }
-
-        .badge {
-            display: inline-block;
-            border-radius: 999px;
-            padding: 4px 9px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        button, select {
-            cursor: pointer;
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-brand-600 selection:text-white">
 
-<body class="bg-slate-100 text-slate-800">
-
-<div class="min-h-screen flex flex-col">
-
-    <!-- HEADER -->
-    <header class="bg-white border-b px-5 py-4 flex flex-wrap
-                   justify-between items-center gap-3">
-
-        <button onclick="switchView('landing')"
-                class="flex items-center gap-3 text-left">
-
-            <span class="bg-emerald-700 text-white p-3 rounded-xl">
-                <i class="fa-solid fa-leaf text-xl"></i>
-            </span>
-
-            <span>
-                <span class="block text-xl font-extrabold">
-                    Fresh <span class="text-emerald-600">Sense</span>
-                </span>
-                <span class="block text-xs text-slate-500">
-                    Agentic AI for Zero-Waste Grocery
-                </span>
-            </span>
-        </button>
-
-        <div class="flex items-center gap-3">
-            <select id="storeSelector"
-                    onchange="changeStoreLocation(this.value)"
-                    class="border rounded-lg p-2 text-sm bg-white">
-
-                <option value="store_mumbai">Mumbai Central</option>
-                <option value="store_bengaluru">Bengaluru Indiranagar</option>
-                <option value="store_delhi">Delhi NCR</option>
-                <option value="store_hyderabad">Hyderabad HiTech City</option>
-                <option value="store_chennai">Chennai Anna Nagar</option>
-            </select>
-
-            <button onclick="switchView('alerts')"
-                    class="relative p-2 text-emerald-700"
-                    aria-label="Open alerts">
-
-                <i class="fa-solid fa-bell text-xl"></i>
-
-                <span class="absolute -top-1 -right-1 bg-red-500
-                             text-white rounded-full text-xs px-1.5">
-                    3
-                </span>
-            </button>
-
-            <div class="text-sm">
-                <div id="userName" class="font-bold">Anvit Jain</div>
-                <div id="userRoleBadge" class="text-xs text-slate-500">
-                    Inventory Manager
+    <div id="app" class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- TOP NAVBAR -->
+        <header class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 z-20 shadow-sm">
+            <div class="flex items-center gap-3">
+                <button id="mobileMenuBtn" class="md:hidden text-slate-700 hover:text-slate-900 p-1.5 rounded-lg border border-slate-200">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('landing')">
+                    <div class="bg-gradient-to-tr from-slate-900 to-emerald-600 text-white p-2 rounded-xl shadow-md">
+                        <i class="fa-solid fa-leaf text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-lg tracking-tight text-slate-900">FreshSense <span class="text-brand-600">AI</span></span>
+                        <span class="hidden sm:inline-block text-[10px] uppercase font-bold tracking-wider text-emerald-800 ml-2 px-2 py-0.5 bg-emerald-50 rounded-full border border-emerald-200">India Edition</span>
+                    </div>
                 </div>
             </div>
+
+            <div class="flex items-center gap-3">
+                <!-- POS Shortcut Button -->
+                <button onclick="switchView('pos')" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-cash-register"></i>
+                    <span class="hidden sm:inline">Launch POS Terminal</span>
+                </button>
+
+                <!-- Global Search -->
+                <div class="relative hidden sm:block w-52">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="globalSearchInput" onkeyup="handleGlobalSearch(event)" placeholder="Search Amul, Paneer..." class="w-full bg-slate-50 text-xs pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-600">
+                </div>
+
+                <!-- Notifications Pill -->
+                <button onclick="switchView('alerts')" class="relative p-2 text-slate-600 hover:text-brand-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <i class="fa-regular fa-bell text-lg"></i>
+                    <span id="unreadAlertCount" class="absolute top-1 right-1 bg-brand-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">5</span>
+                </button>
+
+                <!-- Current User Profile Pill -->
+                <div id="userHeaderProfile" class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                    <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center border border-slate-300" id="userAvatar">
+                        AJ
+                    </div>
+                    <div class="hidden lg:block text-left">
+                        <div class="text-xs font-bold text-slate-900 leading-tight" id="userName">Anvit Jain</div>
+                        <div class="text-[10px] font-medium text-slate-500" id="userRoleBadge">Inventory Manager</div>
+                    </div>
+                    <button id="authBtn" onclick="toggleAuth()" class="ml-1 text-xs text-slate-400 hover:text-slate-700 p-1" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN BODY CONTAINER -->
+        <div class="flex-1 flex overflow-hidden relative">
+
+            <!-- SIDEBAR NAVIGATION -->
+            <aside id="sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 transition-all duration-300 absolute md:relative z-30 h-full -translate-x-full md:translate-x-0 shadow-xl border-r border-slate-800">
+                <div class="p-4 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Navigation</span>
+                    <i class="fa-solid fa-seedling text-brand-500"></i>
+                </div>
+                <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar">
+                    <a href="#" onclick="switchView('landing')" id="nav-landing" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-house w-5 text-center text-slate-400"></i> Home / Portal
+                    </a>
+                    <a href="#" onclick="switchView('pos')" id="nav-pos" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all bg-emerald-900/40 text-emerald-300 border border-emerald-800/50">
+                        <i class="fa-solid fa-cash-register w-5 text-center text-emerald-400"></i> POS Billing Terminal
+                    </a>
+                    <a href="#" onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-chart-line w-5 text-center text-slate-400"></i> Executive Dashboard
+                    </a>
+                    <a href="#" onclick="switchView('inventory')" id="nav-inventory" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-boxes-stacked w-5 text-center text-slate-400"></i> Fresh Inventory
+                    </a>
+                    <a href="#" onclick="switchView('alerts')" id="nav-alerts" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-triangle-exclamation w-5 text-center text-rose-400"></i> Alerts & Risks
+                        <span class="ml-auto bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">3 High</span>
+                    </a>
+                    <a href="#" onclick="switchView('recommendations')" id="nav-recommendations" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles w-5 text-center text-amber-300"></i> AI Markdowns
+                    </a>
+                    <a href="#" onclick="switchView('reports')" id="nav-reports" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-file-contract w-5 text-center text-emerald-400"></i> Reports & Analytics
+                    </a>
+                    <a href="#" onclick="switchView('settings')" id="nav-settings" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                        <i class="fa-solid fa-gear w-5 text-center text-slate-400"></i> System Settings
+                    </a>
+                </nav>
+
+                <div class="p-4 border-t border-slate-800 bg-slate-950">
+                    <div class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-store text-emerald-500"></i> Indian Store Branch
+                    </div>
+                    <select id="storeSelector" onchange="changeStoreLocation(this.value)" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl p-2.5 focus:outline-none focus:border-brand-500 font-medium">
+                        <option value="store_mumbai">Mumbai Central Superstore</option>
+                        <option value="store_bengaluru">Bengaluru Indiranagar Mart</option>
+                        <option value="store_delhi">Delhi NCR Fresh Hub</option>
+                        <option value="store_hyderabad">Hyderabad HiTech City</option>
+                        <option value="store_chennai">Chennai Anna Nagar</option>
+                    </select>
+                </div>
+            </aside>
+
+            <main class="flex-1 bg-slate-50 overflow-y-auto custom-scrollbar p-4 md:p-6" id="mainContent">
+
+                <!-- SECTION 1: LANDING & LOGIN PAGE -->
+                <section id="view-landing" class="view-panel space-y-8 max-w-6xl mx-auto">
+                    <!-- Hero Banner -->
+                    <div class="relative rounded-3xl hero-bg-overlay text-white p-6 md:p-10 shadow-2xl overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8 border border-slate-800">
+                        <div class="max-w-xl space-y-4 z-10">
+                            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-full text-emerald-300 text-xs font-bold shadow-lg">
+                                <i class="fa-solid fa-sparkles text-brand-400"></i> AI Produce Intelligence for Indian Retail
+                            </div>
+                            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight drop-shadow-md">
+                                Less Waste. More Profit. <span class="text-emerald-400 underline decoration-brand-500 decoration-4">A Greener Tomorrow.</span>
+                            </h1>
+                            <p class="text-slate-200 text-sm md:text-base leading-relaxed drop-shadow">
+                                AI-powered product intelligence to reduce food waste, optimize markdown schedules for Indian perishables, and keep fresh produce moving off your shelves.
+                            </p>
+                            <div class="grid grid-cols-2 gap-3 text-xs font-semibold text-slate-200 pt-2">
+                                <div class="flex items-center gap-2 bg-black/30 p-2 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-circle-check text-brand-400"></i> Real-time POS Billing Sync</div>
+                                <div class="flex items-center gap-2 bg-black/30 p-2 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-circle-check text-brand-400"></i> Rupee (₹) Pricing & Tax</div>
+                                <div class="flex items-center gap-2 bg-black/30 p-2 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-circle-check text-brand-400"></i> FEFO Expiry Auto-Deduction</div>
+                                <div class="flex items-center gap-2 bg-black/30 p-2 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-circle-check text-brand-400"></i> Automated Low Stock Alerts</div>
+                            </div>
+                        </div>
+
+                        <!-- Sign In Form Card -->
+                        <div class="w-full lg:w-96 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 text-slate-800 z-10 border border-slate-100">
+                            <div class="text-center mb-6">
+                                <div class="w-10 h-10 rounded-full bg-emerald-100 text-brand-700 flex items-center justify-center mx-auto mb-2 text-lg">
+                                    <i class="fa-solid fa-leaf"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-slate-900">Welcome Back</h2>
+                                <p class="text-xs text-slate-500 mt-0.5">Sign in to your Indian store console</p>
+                            </div>
+                            <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+                                    <input type="email" id="loginEmail" value="anvit.jain@freshsense.in" required class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-xs font-bold text-slate-700">Password</label>
+                                        <a href="#" class="text-[11px] text-brand-700 font-semibold hover:underline">Forgot?</a>
+                                    </div>
+                                    <input type="password" id="loginPassword" value="••••••••••••" required class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                                </div>
+                                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-3 rounded-xl shadow-lg shadow-brand-600/30 transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-right-to-bracket"></i> Sign In to Console
+                                </button>
+                            </form>
+                            <div class="relative my-4">
+                                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
+                                <div class="relative flex justify-center text-[10px] uppercase font-bold"><span class="bg-white px-2 text-slate-400">Or continue with</span></div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="quickRoleLogin('Admin')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
+                                    <i class="fa-brands fa-google text-red-500"></i> Google
+                                </button>
+                                <button onclick="quickRoleLogin('Manager')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
+                                    <i class="fa-brands fa-apple text-slate-900"></i> Apple
+                                </button>
+                                <button onclick="quickRoleLogin('Cashier')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
+                                    <i class="fa-brands fa-microsoft text-blue-500"></i> POS
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Persona Switcher Grid with Cashier Included -->
+                    <div>
+                        <div class="text-center mb-6">
+                            <h3 class="text-xl font-bold text-slate-900">Choose How You Want to Access the System</h3>
+                            <p class="text-xs text-slate-500 mt-1">Select a store role persona below to instantly preview customized dashboards</p>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Admin Role Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all text-center flex flex-col justify-between">
+                                <div>
+                                    <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-800 mx-auto flex items-center justify-center text-lg mb-3 font-bold">
+                                        <i class="fa-solid fa-user-gear"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Store Admin</h4>
+                                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                                        Full multi-store privileges, Rupee sales, and system configuration.
+                                    </p>
+                                </div>
+                                <button onclick="quickRoleLogin('Admin')" class="mt-4 w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                                    Admin View
+                                </button>
+                            </div>
+
+                            <!-- Inventory Manager Card -->
+                            <div class="bg-white p-5 rounded-2xl border-2 border-brand-600 shadow-md text-center flex flex-col justify-between relative">
+                                <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase">Manager</span>
+                                <div>
+                                    <div class="w-10 h-10 rounded-2xl bg-brand-100 text-brand-700 mx-auto flex items-center justify-center text-lg mb-3 font-bold">
+                                        <i class="fa-solid fa-boxes-packing"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Inventory Manager</h4>
+                                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                                        Monitor stock decay, dynamic discounts, and supply replenishment.
+                                    </p>
+                                </div>
+                                <button onclick="quickRoleLogin('Manager')" class="mt-4 w-full py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors">
+                                    Manager View
+                                </button>
+                            </div>
+
+                            <!-- Cashier / POS Billing Card (NEW) -->
+                            <div class="bg-emerald-50 p-5 rounded-2xl border-2 border-emerald-500 shadow-md text-center flex flex-col justify-between relative">
+                                <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase">Checkout POS</span>
+                                <div>
+                                    <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white mx-auto flex items-center justify-center text-lg mb-3 font-bold shadow-md">
+                                        <i class="fa-solid fa-cash-register"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Store Cashier / POS</h4>
+                                    <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                                        Scan grocery barcodes, bill items in Rupees, auto-deduct live stock.
+                                    </p>
+                                </div>
+                                <button onclick="quickRoleLogin('Cashier')" class="mt-4 w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors">
+                                    Open POS Terminal
+                                </button>
+                            </div>
+
+                            <!-- Store Staff Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all text-center flex flex-col justify-between">
+                                <div>
+                                    <div class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-800 mx-auto flex items-center justify-center text-lg mb-3 font-bold">
+                                        <i class="fa-solid fa-barcode"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Floor Staff</h4>
+                                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                                        Scan damaged goods, shelf restock, and log spoiled wastage.
+                                    </p>
+                                </div>
+                                <button onclick="quickRoleLogin('Staff')" class="mt-4 w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                                    Floor Staff View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: CASHIER / POS BILLING TERMINAL -->
+                <section id="view-pos" class="view-panel space-y-6 hidden max-w-7xl mx-auto">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 p-4 rounded-2xl text-white shadow-md border border-slate-800">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-emerald-600 rounded-xl text-lg font-bold text-white">
+                                <i class="fa-solid fa-cash-register"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-lg font-bold">Store Checkout POS Billing Terminal</h1>
+                                <p class="text-xs text-slate-400">Cashier Counter #02 • <span class="text-emerald-400 font-medium" id="posCashierName">Suresh Kumar</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right hidden sm:block">
+                                <div class="text-xs font-bold text-emerald-400">Live Inventory Sync Enabled</div>
+                                <div class="text-[10px] text-slate-400">Stock updates instantly upon billing</div>
+                            </div>
+                            <button onclick="clearPosCart()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold border border-slate-700">
+                                <i class="fa-solid fa-trash-can mr-1"></i> Clear Billing Cart
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div class="lg:col-span-7 space-y-4">
+                            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex gap-2">
+                                <div class="relative flex-1">
+                                    <i class="fa-solid fa-barcode absolute left-3 top-3 text-slate-400 text-sm"></i>
+                                    <input type="text" id="posSearch" oninput="renderPosProductGrid()" placeholder="Scan barcode or type grocery item name..." class="w-full bg-slate-50 text-xs pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-600">
+                                </div>
+                                <select id="posCategory" onchange="renderPosProductGrid()" class="bg-slate-50 border border-slate-200 text-xs rounded-xl p-2 font-medium focus:outline-none">
+                                    <option value="all">All Items</option>
+                                    <option value="Dairy & Eggs">Dairy & Paneer</option>
+                                    <option value="Vegetables">Vegetables</option>
+                                    <option value="Fruits">Fruits</option>
+                                    <option value="Atta & Grains">Atta & Grains</option>
+                                </select>
+                            </div>
+
+                            <div id="posProductGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[550px] overflow-y-auto custom-scrollbar p-1"></div>
+                        </div>
+
+                        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-md p-5 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                                    <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                        <i class="fa-solid fa-cart-shopping text-brand-600"></i> Customer Bill Cart
+                                    </h3>
+                                    <span class="text-xs font-semibold text-slate-500" id="cartItemCount">0 items</span>
+                                </div>
+
+                                <div id="posCartList" class="divide-y divide-slate-100 max-h-64 overflow-y-auto custom-scrollbar my-2">
+                                    <div class="py-8 text-center text-slate-400 text-xs italic">
+                                        No items added. Click grocery cards on the left or scan barcode.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-200 pt-3 space-y-3">
+                                <div class="space-y-1.5 text-xs text-slate-600">
+                                    <div class="flex justify-between">
+                                        <span>Subtotal</span>
+                                        <span id="posSubtotal" class="font-bold text-slate-800">₹0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-emerald-600 font-medium">
+                                        <span>AI Near-Expiry Discounts Applied</span>
+                                        <span id="posDiscount">-₹0.00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>GST Tax (5%)</span>
+                                        <span id="posTax">₹0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                                        <span>Total Payable</span>
+                                        <span id="posGrandTotal" class="text-brand-700">₹0.00</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2 pt-1">
+                                    <button onclick="setPaymentMethod('UPI')" id="pay-UPI" class="pay-btn p-2 rounded-xl text-xs font-bold border-2 border-brand-600 bg-emerald-50 text-brand-800 flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-qrcode"></i> UPI / QR
+                                    </button>
+                                    <button onclick="setPaymentMethod('Cash')" id="pay-Cash" class="pay-btn p-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 flex items-center justify-center gap-1 hover:bg-slate-50">
+                                        <i class="fa-solid fa-money-bill"></i> Cash
+                                    </button>
+                                    <button onclick="setPaymentMethod('Card')" id="pay-Card" class="pay-btn p-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 flex items-center justify-center gap-1 hover:bg-slate-50">
+                                        <i class="fa-solid fa-credit-card"></i> Card
+                                    </button>
+                                </div>
+
+                                <button onclick="completeCheckoutTransaction()" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-brand-600/30 transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-circle-check"></i> Complete Billing & Deduct Stock (₹)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
         </div>
-    </header>
-
-    <div class="flex flex-1 min-h-0">
-
-        <!-- SIDEBAR -->
-        <aside class="w-60 bg-slate-900 text-slate-300
-                      p-3 shrink-0 hidden md:block">
-
-            <p class="text-xs uppercase tracking-widest
-                      text-slate-500 p-3 font-bold">
-                Workspace
-            </p>
-
-            <nav class="space-y-1">
-
-                <button id="nav-landing"
-                        onclick="switchView('landing')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-house w-6"></i> Home
-                </button>
-
-                <button id="nav-dashboard"
-                        onclick="switchView('dashboard')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-chart-line w-6"></i>
-                    Executive Dashboard
-                </button>
-
-                <button id="nav-admin"
-                        onclick="switchView('admin')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-store w-6"></i>
-                    Store Admin
-                </button>
-
-                <button id="nav-inventory"
-                        onclick="switchView('inventory')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-boxes-stacked w-6"></i>
-                    Inventory Manager
-                </button>
-
-                <button id="nav-alerts"
-                        onclick="switchView('alerts')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-triangle-exclamation w-6"></i>
-                    Alerts & Risks
-                </button>
-
-                <button id="nav-recommendations"
-                        onclick="switchView('recommendations')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-wand-magic-sparkles w-6"></i>
-                    AI Markdowns
-                </button>
-
-                <button id="nav-pos"
-                        onclick="switchView('pos')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-cash-register w-6"></i>
-                    POS Terminal
-                </button>
-
-                <button id="nav-reports"
-                        onclick="switchView('reports')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-chart-pie w-6"></i>
-                    Reports & Analytics
-                </button>
-
-                <button id="nav-settings"
-                        onclick="switchView('settings')"
-                        class="nav-item w-full text-left p-3 rounded-lg">
-                    <i class="fa-solid fa-gear w-6"></i>
-                    Settings
-                </button>
-
-            </nav>
-
-            <div class="mt-8 p-3 bg-slate-800 rounded-xl">
-                <p class="text-xs text-slate-400">Platform status</p>
-                <p class="mt-2 text-sm font-bold text-emerald-400">
-                    <i class="fa-solid fa-circle-check"></i>
-                    Demo environment
-                </p>
-            </div>
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <main class="flex-1 p-4 md:p-7 overflow-auto min-w-0">
-
-            <!-- HOME -->
-            <section id="view-landing"
-                     class="view-panel space-y-6">
-
-                <div class="rounded-3xl bg-gradient-to-r
-                            from-emerald-950 to-emerald-700
-                            p-8 md:p-12 text-white">
-
-                    <span class="badge bg-emerald-800 text-emerald-100">
-                        AGENTIC AI · ZERO-WASTE GROCERY
-                    </span>
-
-                    <h1 class="text-3xl md:text-5xl font-extrabold mt-5">
-                        Less Waste.<br>More Freshness. More Profit.
-                    </h1>
-
-                    <p class="mt-4 text-emerald-100 max-w-2xl">
-                        Fresh Sense helps grocery teams monitor perishable
-                        inventory, identify expiry risks, and evaluate
-                        replenishment and markdown decisions.
-                    </p>
-
-                    <div class="flex flex-wrap gap-3 mt-7">
-
-                        <button onclick="switchView('dashboard')"
-                                class="bg-white text-emerald-900
-                                       px-5 py-3 rounded-xl font-bold">
-                            Open Dashboard
-                        </button>
-
-                        <button onclick="switchView('inventory')"
-                                class="bg-emerald-800 text-white
-                                       px-5 py-3 rounded-xl font-bold">
-                            Manage Inventory
-                        </button>
-
-                        <button onclick="switchView('pos')"
-                                class="border border-emerald-300
-                                       px-5 py-3 rounded-xl font-bold">
-                            Launch POS
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-
-                    <button onclick="switchView('inventory')"
-                            class="card text-left hover:border-emerald-500">
-                        <i class="fa-solid fa-boxes-stacked text-emerald-600 text-2xl"></i>
-                        <h3 class="font-bold mt-3">Inventory Manager</h3>
-                        <p class="text-sm text-slate-500 mt-1">
-                            View stock levels and product expiry.
-                        </p>
-                    </button>
-
-                    <button onclick="switchView('admin')"
-                            class="card text-left hover:border-emerald-500">
-                        <i class="fa-solid fa-store text-blue-600 text-2xl"></i>
-                        <h3 class="font-bold mt-3">Store Admin</h3>
-                        <p class="text-sm text-slate-500 mt-1">
-                            Review store operations.
-                        </p>
-                    </button>
-
-                    <button onclick="switchView('alerts')"
-                            class="card text-left hover:border-emerald-500">
-                        <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl"></i>
-                        <h3 class="font-bold mt-3">Alerts & Risks</h3>
-                        <p class="text-sm text-slate-500 mt-1">
-                            Identify low-stock and expiry risks.
-                        </p>
-                    </button>
-
-                    <button onclick="switchView('recommendations')"
-                            class="card text-left hover:border-emerald-500">
-                        <i class="fa-solid fa-wand-magic-sparkles text-amber-600 text-2xl"></i>
-                        <h3 class="font-bold mt-3">AI Markdowns</h3>
-                        <p class="text-sm text-slate-500 mt-1">
-                            Review suggested discount actions.
-                        </p>
-                    </button>
-
-                </div>
-            </section>
-
-            <!-- EXECUTIVE DASHBOARD -->
-            <section id="view-dashboard"
-                     class="view-panel hidden space-y-6">
-
-                <div>
-                    <h1 class="text-3xl font-extrabold">
-                        Executive Dashboard
-                    </h1>
-                    <p class="text-slate-500 mt-1">
-                        Overview of the current demo inventory.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-
-                    <div class="card">
-                        <p class="text-sm text-slate-500">Products tracked</p>
-                        <p id="metricProducts" class="text-3xl font-extrabold mt-2">6</p>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-sm text-slate-500">Units in stock</p>
-                        <p id="metricStock" class="text-3xl font-extrabold mt-2">540</p>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-sm text-slate-500">Near-expiry products</p>
-                        <p id="metricExpiry" class="text-3xl font-extrabold mt-2 text-amber-600">4</p>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-sm text-slate-500">Low-stock products</p>
-                        <p id="metricLowStock" class="text-3xl font-extrabold mt-2 text-red-600">0</p>
-                    </div>
-
-                </div>
-
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
-
-                    <div class="card">
-                        <h2 class="font-bold text-lg">Stock by product</h2>
-                        <div class="mt-4">
-                            <canvas id="stockChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h2 class="font-bold text-lg">Expiry risk overview</h2>
-                        <div class="mt-4">
-                            <canvas id="expiryChart"></canvas>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="card">
-                    <div class="flex justify-between items-center gap-3">
-                        <h2 class="font-bold text-lg">Priority actions</h2>
-                        <button onclick="switchView('alerts')"
-                                class="text-sm text-emerald-700 font-bold">
-                            View alerts →
-                        </button>
-                    </div>
-                    <div id="dashboardActions" class="mt-4 space-y-3"></div>
-                </div>
-            </section>
-
-            <!-- STORE ADMIN -->
-            <section id="view-admin"
-                     class="view-panel hidden space-y-6">
-
-                <div>
-                    <h1 class="text-3xl font-extrabold">Store Admin</h1>
-                    <p class="text-slate-500 mt-1">
-                        Store overview and operational controls.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Selected branch</p>
-                        <h2 id="adminStoreName" class="text-xl font-bold mt-2">
-                            Mumbai Central
-                        </h2>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Products monitored</p>
-                        <p id="adminProductCount" class="text-3xl font-bold mt-2">6</p>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Items requiring review</p>
-                        <p id="adminRiskCount" class="text-3xl font-bold text-amber-600 mt-2">4</p>
-                    </div>
-
-                </div>
-
-                <div class="card">
-                    <h2 class="font-bold text-lg">Store operations</h2>
-
-                    <div class="grid sm:grid-cols-2 gap-3 mt-5">
-
-                        <button onclick="switchView('inventory')"
-                                class="p-4 rounded-xl border text-left hover:bg-slate-50">
-                            <i class="fa-solid fa-boxes-stacked text-emerald-600"></i>
-                            <span class="block font-bold mt-2">Review inventory</span>
-                            <span class="text-sm text-slate-500">
-                                Inspect current product stock.
-                            </span>
-                        </button>
-
-                        <button onclick="switchView('alerts')"
-                                class="p-4 rounded-xl border text-left hover:bg-slate-50">
-                            <i class="fa-solid fa-bell text-red-600"></i>
-                            <span class="block font-bold mt-2">Review alerts</span>
-                            <span class="text-sm text-slate-500">
-                                Check expiry and stock risks.
-                            </span>
-                        </button>
-
-                        <button onclick="switchView('recommendations')"
-                                class="p-4 rounded-xl border text-left hover:bg-slate-50">
-                            <i class="fa-solid fa-tags text-amber-600"></i>
-                            <span class="block font-bold mt-2">Review markdowns</span>
-                            <span class="text-sm text-slate-500">
-                                Inspect suggested discounts.
-                            </span>
-                        </button>
-
-                        <button onclick="switchView('reports')"
-                                class="p-4 rounded-xl border text-left hover:bg-slate-50">
-                            <i class="fa-solid fa-chart-pie text-blue-600"></i>
-                            <span class="block font-bold mt-2">Open reports</span>
-                            <span class="text-sm text-slate-500">
-                                Review demo inventory metrics.
-                            </span>
-                        </button>
-
-                    </div>
-                </div>
-            </section>
-
-            <!-- INVENTORY -->
-            <section id="view-inventory"
-                     class="view-panel hidden space-y-6">
-
-                <div class="flex flex-wrap justify-between items-center gap-3">
-                    <div>
-                        <h1 class="text-3xl font-extrabold">Fresh Inventory</h1>
-                        <p class="text-slate-500 mt-1">
-                            Product stock and shelf-life monitoring.
-                        </p>
-                    </div>
-
-                    <button onclick="renderInventoryPage()"
-                            class="px-4 py-2 rounded-lg bg-emerald-700 text-white font-bold">
-                        <i class="fa-solid fa-rotate mr-1"></i> Refresh
-                    </button>
-                </div>
-
-                <div class="card overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-xs uppercase bg-slate-50 text-slate-500">
-                            <tr>
-                                <th class="p-3">Product</th>
-                                <th class="p-3">Category</th>
-                                <th class="p-3">Stock</th>
-                                <th class="p-3">Price</th>
-                                <th class="p-3">Expiry</th>
-                                <th class="p-3">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventoryTableBody"></tbody>
-                    </table>
-                </div>
-
-                <p class="text-xs text-slate-500">
-                    Demo data: product quantities and shelf-life values are illustrative.
-                </p>
-            </section>
-
-            <!-- ALERTS -->
-            <section id="view-alerts"
-                     class="view-panel hidden space-y-6">
-
-                <div>
-                    <h1 class="text-3xl font-extrabold">Alerts & Risks</h1>
-                    <p class="text-slate-500 mt-1">
-                        Products that need closer attention.
-                    </p>
-                </div>
-
-                <div class="grid sm:grid-cols-3 gap-4">
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Critical expiry</p>
-                        <p id="alertCriticalCount" class="text-3xl font-extrabold text-red-600 mt-2">2</p>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Near expiry</p>
-                        <p id="alertWarningCount" class="text-3xl font-extrabold text-amber-600 mt-2">2</p>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Low stock</p>
-                        <p id="alertLowCount" class="text-3xl font-extrabold text-blue-600 mt-2">0</p>
-                    </div>
-
-                </div>
-
-                <div id="alertsList" class="space-y-3"></div>
-
-            </section>
-
-            <!-- MARKDOWNS -->
-            <section id="view-recommendations"
-                     class="view-panel hidden space-y-6">
-
-                <div>
-                    <h1 class="text-3xl font-extrabold">AI Markdown Recommendations</h1>
-                    <p class="text-slate-500 mt-1">
-                        Illustrative discount suggestions based on days to expiry.
-                    </p>
-                </div>
-
-                <div class="card overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
-                            <tr>
-                                <th class="p-3">Product</th>
-                                <th class="p-3">Days to expiry</th>
-                                <th class="p-3">Current price</th>
-                                <th class="p-3">Suggested markdown</th>
-                                <th class="p-3">Illustrative price</th>
-                                <th class="p-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="markdownTableBody"></tbody>
-                    </table>
-                </div>
-
-                <p class="text-xs text-slate-500">
-                    These frontend suggestions are illustrative. They are not live
-                    outputs from the Python agent unless the agent API is connected.
-                </p>
-            </section>
-
-            <!-- POS -->
-            <section id="view-pos"
-                     class="view-panel hidden space-y-6">
-
-                <div>
-                    <h1 class="text-3xl font-extrabold">POS Billing Terminal</h1>
-                    <p class="text-slate-500 mt-1">
-                        Demo checkout and inventory deduction.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
-
-                    <div class="xl:col-span-2 card">
-
-                        <div class="flex flex-wrap gap-3 mb-5">
-                            <input id="posSearch"
-                                   oninput="renderPosProductGrid()"
-                                   placeholder="Search grocery items..."
-                                   class="flex-1 min-w-40 border rounded-lg p-3 text-sm">
-
-                            <select id="posCategory"
-                                    onchange="renderPosProductGrid()"
-                                    class="border rounded-lg p-3 text-sm">
-                                <option value="all">All categories</option>
-                                <option value="Dairy & Eggs">Dairy & Eggs</option>
-                                <option value="Vegetables">Vegetables</option>
-                                <option value="Fruits">Fruits</option>
-                                <option value="Atta & Grains">Atta & Grains</option>
-                            </select>
-                        </div>
-
-                        <div id="posProductGrid"
-                             class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
-
-                    </div>
-
-                    <div class="card">
-                        <h2 class="font-bold text-lg">Customer Cart</h2>
-
-                        <p id="cartItemCount" class="text-sm text-slate-500 mt-1">
-                            0 items
-                        </p>
-
-                        <div id="posCartList" class="divide-y mt-3"></div>
-
-                        <div class="border-t mt-4 pt-4 space-y-3 text-sm">
-
-                            <div class="flex justify-between">
-                                <span>Subtotal</span>
-                                <span id="posSubtotal">₹0.00</span>
-                            </div>
-
-                            <div class="flex justify-between text-emerald-700">
-                                <span>Discount</span>
-                                <span id="posDiscount">-₹0.00</span>
-                            </div>
-
-                            <div class="flex justify-between">
-                                <span>Tax (5%)</span>
-                                <span id="posTax">₹0.00</span>
-                            </div>
-
-                            <div class="flex justify-between font-extrabold text-lg">
-                                <span>Total</span>
-                                <span id="posGrandTotal">₹0.00</span>
-                            </div>
-
-                        </div>
-
-                        <div class="grid grid-cols-3 gap-2 mt-4">
-                            <button id="pay-UPI"
-                                    onclick="setPaymentMethod('UPI')"
-                                    class="pay-btn border rounded-lg p-2 text-xs">
-                                UPI
-                            </button>
-
-                            <button id="pay-Cash"
-                                    onclick="setPaymentMethod('Cash')"
-                                    class="pay-btn border rounded-lg p-2 text-xs">
-                                Cash
-                            </button>
-
-                            <button id="pay-Card"
-                                    onclick="setPaymentMethod('Card')"
-                                    class="pay-btn border rounded-lg p-2 text-xs">
-                                Card
-                            </button>
-                        </div>
-
-                        <button onclick="completeCheckoutTransaction()"
-                                class="w-full mt-4 bg-emerald-700 hover:bg-emerald-800
-                                       text-white font-bold p-3 rounded-xl">
-                            Complete Checkout
-                        </button>
-
-                        <button onclick="clearPosCart()"
-                                class="w-full mt-2 border p-3 rounded-xl">
-                            Clear Cart
-                        </button>
-                    </div>
-
-                </div>
-            </section>
-
-            <!-- REPORTS -->
-            <section id="view-reports"
-                     class="view-panel hidden space-y-6">
-
-                <div>
-                    <h1 class="text-3xl font-extrabold">Reports & Analytics</h1>
-                    <p class="text-slate-500 mt-1">
-                        Current demo inventory metrics.
-                    </p>
-                </div>
-
-                <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Total units on hand</p>
-                        <p id="reportTotalStock" class="text-3xl font-extrabold mt-2">540</p>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Inventory retail value</p>
-                        <p id="reportInventoryValue" class="text-3xl font-extrabold mt-2">₹0</p>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-slate-500 text-sm">Products needing review</p>
-                        <p id="reportRiskProducts" class="text-3xl font-extrabold mt-2">4</p>
-                    </div>
-
-                </div>
-
-                <div class="card">
-                    <h2 class="font-bold text-lg">Inventory summary</h2>
-                    <div id="reportSummary" class="mt-4 space-y-3"></div>
-                </div>
-
-                <p class="text-xs text-slate-500">
-                    These are calculations from the current demo product list,
-                    not measured waste reduction or verified business savings.
-                </p>
-            </section>
-
-            <!-- SETTINGS -->
-            <section id="view-settings"
-                     class="view-panel hidden space-y-6">
-
-                <div>
-                    <h1 class="text-3xl font-extrabold">System Settings</h1>
-                    <p class="text-slate-500 mt-1">
-                        Demo preferences for the selected store.
-                    </p>
-                </div>
-
-                <div class="card max-w-2xl space-y-5">
-
-                    <div>
-                        <label for="settingsStore"
-                               class="block font-bold text-sm mb-2">
-                            Active store
-                        </label>
-
-                        <select id="settingsStore"
-                                onchange="syncStoreSettings(this.value)"
-                                class="w-full border rounded-lg p-3 bg-white">
-                            <option value="store_mumbai">Mumbai Central</option>
-                            <option value="store_bengaluru">Bengaluru Indiranagar</option>
-                            <option value="store_delhi">Delhi NCR</option>
-                            <option value="store_hyderabad">Hyderabad HiTech City</option>
-                            <option value="store_chennai">Chennai Anna Nagar</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="lowStockThreshold"
-                               class="block font-bold text-sm mb-2">
-                            Low-stock threshold (units)
-                        </label>
-
-                        <input id="lowStockThreshold"
-                               type="number"
-                               min="1"
-                               max="1000"
-                               value="20"
-                               class="w-full border rounded-lg p-3">
-                    </div>
-
-                    <div>
-                        <label for="expiryThreshold"
-                               class="block font-bold text-sm mb-2">
-                            Near-expiry threshold (days)
-                        </label>
-
-                        <input id="expiryThreshold"
-                               type="number"
-                               min="1"
-                               max="30"
-                               value="3"
-                               class="w-full border rounded-lg p-3">
-                    </div>
-
-                    <button onclick="saveDemoSettings()"
-                            class="bg-emerald-700 text-white px-5 py-3
-                                   rounded-xl font-bold">
-                        Save Demo Settings
-                    </button>
-
-                    <p id="settingsMessage" class="text-sm text-emerald-700"></p>
-
-                </div>
-            </section>
-
-        </main>
     </div>
-</div>
-
-<script src="app.js"></script>
-
-<script>
-/*
- * Supplemental navigation and demo-page rendering.
- * Uses the existing inventoryData array and switchView function
- * from app.js.
- */
-
-let stockChartInstance = null;
-let expiryChartInstance = null;
-
-function getDaysToExpiry(product) {
-    const match = String(product.expiry).match(/\d+/);
-    return match ? Number(match[0]) : 999;
-}
-
-function getProductStatus(product) {
-    const days = getDaysToExpiry(product);
-    const lowThreshold = Number(
-        document.getElementById('lowStockThreshold')?.value || 20
-    );
-
-    if (days <= 1) return 'Critical';
-    if (days <= 3) return 'Warning';
-    if (product.stock <= lowThreshold) return 'Low stock';
-
-    return 'Good';
-}
-
-function getStatusBadge(status) {
-    if (status === 'Critical') {
-        return '<span class="badge bg-red-100 text-red-700">Critical expiry</span>';
-    }
-
-    if (status === 'Warning') {
-        return '<span class="badge bg-amber-100 text-amber-700">Near expiry</span>';
-    }
-
-    if (status === 'Low stock') {
-        return '<span class="badge bg-blue-100 text-blue-700">Low stock</span>';
-    }
-
-    return '<span class="badge bg-emerald-100 text-emerald-700">Good</span>';
-}
-
-function renderInventoryPage() {
-    const tbody = document.getElementById('inventoryTableBody');
-    if (!tbody || !Array.isArray(inventoryData)) return;
-
-    tbody.innerHTML = inventoryData.map(product => {
-        const status = getProductStatus(product);
-
-        return `
-            <tr class="border-b hover:bg-slate-50">
-                <td class="p-3 font-bold">${product.name}</td>
-                <td class="p-3">${product.category}</td>
-                <td class="p-3">${product.stock}</td>
-                <td class="p-3">₹${product.price}</td>
-                <td class="p-3">${product.expiry}</td>
-                <td class="p-3">${getStatusBadge(status)}</td>
-            </tr>
-        `;
-    }).join('');
-
-    renderSummaryMetrics();
-}
-
-function renderAlertsPage() {
-    const container = document.getElementById('alertsList');
-    if (!container || !Array.isArray(inventoryData)) return;
-
-    const riskyProducts = inventoryData.filter(product =>
-        getProductStatus(product) !== 'Good'
-    );
-
-    container.innerHTML = riskyProducts.length
-        ? riskyProducts.map(product => {
-            const status = getProductStatus(product);
-            const days = getDaysToExpiry(product);
-
-            const explanation = status === 'Critical'
-                ? `Only ${days} day(s) remaining. Review markdown or removal policy.`
-                : status === 'Warning'
-                ? `${days} days remaining. Review the suggested markdown.`
-                : `Stock is ${product.stock} units. Consider checking replenishment needs.`;
-
-            return `
-                <div class="card flex flex-wrap justify-between gap-3 items-center">
-                    <div>
-                        <h3 class="font-bold">${product.name}</h3>
-                        <p class="text-sm text-slate-500 mt-1">${explanation}</p>
-                    </div>
-                    ${getStatusBadge(status)}
-                </div>
-            `;
-        }).join('')
-        : '<div class="card">No current demo alerts.</div>';
-
-    const critical = inventoryData.filter(
-        product => getProductStatus(product) === 'Critical'
-    ).length;
-
-    const warning = inventoryData.filter(
-        product => getProductStatus(product) === 'Warning'
-    ).length;
-
-    const low = inventoryData.filter(
-        product => getProductStatus(product) === 'Low stock'
-    ).length;
-
-    document.getElementById('alertCriticalCount').textContent = critical;
-    document.getElementById('alertWarningCount').textContent = warning;
-    document.getElementById('alertLowCount').textContent = low;
-}
-
-function renderMarkdownPage() {
-    const tbody = document.getElementById('markdownTableBody');
-    if (!tbody || !Array.isArray(inventoryData)) return;
-
-    tbody.innerHTML = inventoryData.map(product => {
-        const days = getDaysToExpiry(product);
-
-        let discount = 0;
-        if (days <= 1) discount = 30;
-        else if (days <= 3) discount = 20;
-        else if (days <= 5) discount = 10;
-
-        // Do not suggest a selling price below the product's cost.
-        // The demo data does not provide unit cost, so the price is
-        // illustrative and requires validation by the real agent.
-        const illustrativePrice = product.price * (1 - discount / 100);
-
-        return `
-            <tr class="border-b hover:bg-slate-50">
-                <td class="p-3 font-bold">${product.name}</td>
-                <td class="p-3">${days} day(s)</td>
-                <td class="p-3">₹${product.price}</td>
-                <td class="p-3 font-bold text-amber-700">${discount}%</td>
-                <td class="p-3">₹${illustrativePrice.toFixed(2)}</td>
-                <td class="p-3">
-                    <button
-                        onclick="showMarkdownNotice('${product.id}')"
-                        class="px-3 py-2 rounded-lg bg-emerald-700
-                               text-white text-xs font-bold">
-                        Review
-                    </button>
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
-
-function showMarkdownNotice(productId) {
-    const product = inventoryData.find(
-        item => String(item.id) === String(productId)
-    );
-
-    if (!product) return;
-
-    alert(
-        `Demo recommendation for ${product.name}.\n\n` +
-        `Please review the actual cost, shelf life and agent output ` +
-        `before applying a real markdown.`
-    );
-}
-
-function renderSummaryMetrics() {
-    if (!Array.isArray(inventoryData)) return;
-
-    const totalStock = inventoryData.reduce(
-        (sum, product) => sum + Number(product.stock || 0), 0
-    );
-
-    const riskProducts = inventoryData.filter(
-        product => getProductStatus(product) !== 'Good'
-    ).length;
-
-    const lowStockProducts = inventoryData.filter(
-        product => getProductStatus(product) === 'Low stock'
-    ).length;
-
-    const nearExpiryProducts = inventoryData.filter(
-        product => getDaysToExpiry(product) <= 3
-    ).length;
-
-    const inventoryValue = inventoryData.reduce(
-        (sum, product) =>
-            sum + Number(product.stock || 0) * Number(product.price || 0),
-        0
-    );
-
-    document.getElementById('metricProducts').textContent = inventoryData.length;
-    document.getElementById('metricStock').textContent = totalStock;
-    document.getElementById('metricExpiry').textContent = nearExpiryProducts;
-    document.getElementById('metricLowStock').textContent = lowStockProducts;
-
-    document.getElementById('adminProductCount').textContent = inventoryData.length;
-    document.getElementById('adminRiskCount').textContent = riskProducts;
-
-    document.getElementById('reportTotalStock').textContent = totalStock;
-    document.getElementById('reportInventoryValue').textContent =
-        '₹' + inventoryValue.toLocaleString('en-IN');
-
-    document.getElementById('reportRiskProducts').textContent = riskProducts;
-
-    document.getElementById('dashboardActions').innerHTML =
-        inventoryData
-            .filter(product => getProductStatus(product) !== 'Good')
-            .map(product => `
-                <div class="flex justify-between items-center gap-3
-                            border-b last:border-0 pb-3">
-                    <div>
-                        <p class="font-bold text-sm">${product.name}</p>
-                        <p class="text-xs text-slate-500">
-                            ${product.stock} units · ${product.expiry} remaining
-                        </p>
-                    </div>
-                    ${getStatusBadge(getProductStatus(product))}
-                </div>
-            `).join('') || '<p class="text-sm text-slate-500">No priority actions.</p>';
-
-    document.getElementById('reportSummary').innerHTML =
-        inventoryData.map(product => `
-            <div class="flex justify-between items-center gap-3 border-b pb-3">
-                <span class="text-sm">${product.name}</span>
-                <span class="font-bold">${product.stock} units</span>
-            </div>
-        `).join('');
-
-    const adminStoreName = document.getElementById('adminStoreName');
-    const storeSelector = document.getElementById('storeSelector');
-
-    if (adminStoreName && storeSelector) {
-        adminStoreName.textContent =
-            storeSelector.options[storeSelector.selectedIndex].text;
-    }
-}
-
-function renderDashboardCharts() {
-    if (!Array.isArray(inventoryData) || typeof Chart === 'undefined') return;
-
-    const stockCanvas = document.getElementById('stockChart');
-    const expiryCanvas = document.getElementById('expiryChart');
-
-    if (stockChartInstance) {
-        stockChartInstance.destroy();
-        stockChartInstance = null;
-    }
-
-    if (expiryChartInstance) {
-        expiryChartInstance.destroy();
-        expiryChartInstance = null;
-    }
-
-    if (stockCanvas) {
-        stockChartInstance = new Chart(stockCanvas, {
-            type: 'bar',
-            data: {
-                labels: inventoryData.map(product => product.name),
-                datasets: [{
-                    label: 'Units in stock',
-                    data: inventoryData.map(product => product.stock),
-                    backgroundColor: '#059669'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    }
-
-    if (expiryCanvas) {
-        const groups = {
-            '1–3 days': 0,
-            '4–7 days': 0,
-            '8+ days': 0
-        };
-
-        inventoryData.forEach(product => {
-            const days = getDaysToExpiry(product);
-
-            if (days <= 3) groups['1–3 days']++;
-            else if (days <= 7) groups['4–7 days']++;
-            else groups['8+ days']++;
-        });
-
-        expiryChartInstance = new Chart(expiryCanvas, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(groups),
-                datasets: [{
-                    data: Object.values(groups),
-                    backgroundColor: ['#dc2626', '#f59e0b', '#059669']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
-        });
-    }
-}
-
-function syncStoreSettings(storeValue) {
-    const selector = document.getElementById('storeSelector');
-    if (selector) {
-        selector.value = storeValue;
-        changeStoreLocation(storeValue);
-    }
-
-    renderSummaryMetrics();
-}
-
-function saveDemoSettings() {
-    const lowThreshold = Number(
-        document.getElementById('lowStockThreshold').value
-    );
-
-    const expiryThreshold = Number(
-        document.getElementById('expiryThreshold').value
-    );
-
-    if (
-        !Number.isFinite(lowThreshold) ||
-        !Number.isFinite(expiryThreshold) ||
-        lowThreshold < 1 ||
-        expiryThreshold < 1
-    ) {
-        document.getElementById('settingsMessage').textContent =
-            'Enter valid positive threshold values.';
-        return;
-    }
-
-    document.getElementById('settingsMessage').textContent =
-        'Demo settings applied for this browser session.';
-
-    renderInventoryPage();
-    renderAlertsPage();
-    renderMarkdownPage();
-    renderSummaryMetrics();
-}
-
-/*
- * Wrap the existing view switcher so that the existing POS logic remains
- * available and the supplemental sections refresh when opened.
- */
-const originalSwitchView = switchView;
-
-switchView = function(viewId) {
-    originalSwitchView(viewId);
-
-    document.querySelectorAll('.nav-item').forEach(button => {
-        button.classList.remove('active');
-    });
-
-    const activeNav = document.getElementById('nav-' + viewId);
-    if (activeNav) activeNav.classList.add('active');
-
-    if (viewId === 'dashboard') {
-        renderSummaryMetrics();
-        renderDashboardCharts();
-    }
-
-    if (viewId === 'admin') {
-        renderSummaryMetrics();
-    }
-
-    if (viewId === 'inventory') {
-        renderInventoryPage();
-    }
-
-    if (viewId === 'alerts') {
-        renderAlertsPage();
-    }
-
-    if (viewId === 'recommendations') {
-        renderMarkdownPage();
-    }
-
-    if (viewId === 'reports') {
-        renderSummaryMetrics();
-    }
-
-    if (viewId === 'pos') {
-        renderPosProductGrid();
-        updateCartUI();
-    }
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    renderSummaryMetrics();
-    renderInventoryPage();
-    renderAlertsPage();
-    renderMarkdownPage();
-
-    const settingsStore = document.getElementById('settingsStore');
-    const storeSelector = document.getElementById('storeSelector');
-
-    if (settingsStore && storeSelector) {
-        settingsStore.value = storeSelector.value;
-    }
-});
-</script>
-
+    <script src="app.js"></script>
 </body>
 </html>
