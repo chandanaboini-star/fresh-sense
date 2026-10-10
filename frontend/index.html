@@ -60,7 +60,7 @@
         <!-- TOP NAVBAR -->
         <header class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 z-20 shadow-sm">
             <div class="flex items-center gap-3">
-                <button id="mobileMenuBtn" class="md:hidden text-slate-700 hover:text-slate-900 p-1.5 rounded-lg border border-slate-200">
+                <button id="mobileMenuBtn" onclick="toggleMobileSidebar()" class="md:hidden text-slate-700 hover:text-slate-900 p-1.5 rounded-lg border border-slate-200">
                     <i class="fa-solid fa-bars text-lg"></i>
                 </button>
                 <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('landing')">
@@ -88,9 +88,9 @@
                 </div>
 
                 <!-- Notifications Pill -->
-                <button onclick="switchView('alerts')" class="relative p-2 text-slate-600 hover:text-brand-600 hover:bg-slate-50 rounded-lg transition-colors">
+                <button onclick="switchView('alerts')" class="relative p-2 text-slate-600 hover:text-brand-600 hover:bg-slate-50 rounded-lg transition-colors" title="View Alerts">
                     <i class="fa-regular fa-bell text-lg"></i>
-                    <span id="unreadAlertCount" class="absolute top-1 right-1 bg-brand-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">5</span>
+                    <span id="unreadAlertCount" class="absolute top-1 right-1 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">3</span>
                 </button>
 
                 <!-- Current User Profile Pill -->
@@ -119,29 +119,29 @@
                     <i class="fa-solid fa-seedling text-brand-500"></i>
                 </div>
                 <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar">
-                    <a href="#" onclick="switchView('landing')" id="nav-landing" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                    <a href="javascript:void(0)" onclick="switchView('landing')" id="nav-landing" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
                         <i class="fa-solid fa-house w-5 text-center text-slate-400"></i> Home / Portal
                     </a>
-                    <a href="#" onclick="switchView('pos')" id="nav-pos" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all bg-emerald-900/40 text-emerald-300 border border-emerald-800/50">
+                    <a href="javascript:void(0)" onclick="switchView('pos')" id="nav-pos" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
                         <i class="fa-solid fa-cash-register w-5 text-center text-emerald-400"></i> POS Billing Terminal
                     </a>
-                    <a href="#" onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                    <a href="javascript:void(0)" onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
                         <i class="fa-solid fa-chart-line w-5 text-center text-slate-400"></i> Executive Dashboard
                     </a>
-                    <a href="#" onclick="switchView('inventory')" id="nav-inventory" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                    <a href="javascript:void(0)" onclick="switchView('inventory')" id="nav-inventory" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
                         <i class="fa-solid fa-boxes-stacked w-5 text-center text-slate-400"></i> Fresh Inventory
                     </a>
-                    <a href="#" onclick="switchView('alerts')" id="nav-alerts" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                    <a href="javascript:void(0)" onclick="switchView('alerts')" id="nav-alerts" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
                         <i class="fa-solid fa-triangle-exclamation w-5 text-center text-rose-400"></i> Alerts & Risks
                         <span class="ml-auto bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">3 High</span>
                     </a>
-                    <a href="#" onclick="switchView('recommendations')" id="nav-recommendations" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                    <a href="javascript:void(0)" onclick="switchView('recommendations')" id="nav-recommendations" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
                         <i class="fa-solid fa-wand-magic-sparkles w-5 text-center text-amber-300"></i> AI Markdowns
                     </a>
-                    <a href="#" onclick="switchView('reports')" id="nav-reports" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                    <a href="javascript:void(0)" onclick="switchView('reports')" id="nav-reports" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
                         <i class="fa-solid fa-file-contract w-5 text-center text-emerald-400"></i> Reports & Analytics
                     </a>
-                    <a href="#" onclick="switchView('settings')" id="nav-settings" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
+                    <a href="javascript:void(0)" onclick="switchView('settings')" id="nav-settings" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 hover:text-white transition-all">
                         <i class="fa-solid fa-gear w-5 text-center text-slate-400"></i> System Settings
                     </a>
                 </nav>
@@ -201,7 +201,7 @@
                                 <div>
                                     <div class="flex justify-between items-center mb-1">
                                         <label class="block text-xs font-bold text-slate-700">Password</label>
-                                        <a href="#" class="text-[11px] text-brand-700 font-semibold hover:underline">Forgot?</a>
+                                        <a href="javascript:void(0)" class="text-[11px] text-brand-700 font-semibold hover:underline">Forgot?</a>
                                     </div>
                                     <input type="password" id="loginPassword" value="••••••••••••" required class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-600 focus:outline-none">
                                 </div>
@@ -215,19 +215,19 @@
                             </div>
                             <div class="grid grid-cols-3 gap-2">
                                 <button onclick="quickRoleLogin('Admin')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
-                                    <i class="fa-brands fa-google text-red-500"></i> Google
+                                    <i class="fa-brands fa-google text-red-500"></i> Admin
                                 </button>
                                 <button onclick="quickRoleLogin('Manager')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
-                                    <i class="fa-brands fa-apple text-slate-900"></i> Apple
+                                    <i class="fa-brands fa-apple text-slate-900"></i> Manager
                                 </button>
                                 <button onclick="quickRoleLogin('Cashier')" class="p-2 border border-slate-200 rounded-xl text-xs font-medium hover:bg-slate-50 text-slate-700 flex items-center justify-center gap-1 transition-colors">
-                                    <i class="fa-brands fa-microsoft text-blue-500"></i> POS
+                                    <i class="fa-solid fa-cash-register text-emerald-600"></i> POS
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Persona Switcher Grid with Cashier Included -->
+                    <!-- Persona Switcher Grid -->
                     <div>
                         <div class="text-center mb-6">
                             <h3 class="text-xl font-bold text-slate-900">Choose How You Want to Access the System</h3>
@@ -242,7 +242,7 @@
                                     </div>
                                     <h4 class="font-bold text-slate-900 text-sm">Store Admin</h4>
                                     <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                                        Full multi-store privileges, Rupee sales, and system configuration.
+                                        Full multi-store privileges, Rupee sales analytics, and system configuration.
                                     </p>
                                 </div>
                                 <button onclick="quickRoleLogin('Admin')" class="mt-4 w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
@@ -267,7 +267,7 @@
                                 </button>
                             </div>
 
-                            <!-- Cashier / POS Billing Card (NEW) -->
+                            <!-- Cashier / POS Billing Card -->
                             <div class="bg-emerald-50 p-5 rounded-2xl border-2 border-emerald-500 shadow-md text-center flex flex-col justify-between relative">
                                 <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase">Checkout POS</span>
                                 <div>
@@ -292,7 +292,7 @@
                                     </div>
                                     <h4 class="font-bold text-slate-900 text-sm">Floor Staff</h4>
                                     <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                                        Scan damaged goods, shelf restock, and log spoiled wastage.
+                                        Scan damaged goods, shelf restock, and log spoiled wastage alerts.
                                     </p>
                                 </div>
                                 <button onclick="quickRoleLogin('Staff')" class="mt-4 w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
@@ -400,6 +400,301 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- SECTION 3: EXECUTIVE DASHBOARD (ADDED) -->
+                <section id="view-dashboard" class="view-panel space-y-6 hidden max-w-7xl mx-auto">
+                    <!-- Page Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div>
+                            <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-brand-600"></i> Executive Store Dashboard
+                            </h1>
+                            <p class="text-xs text-slate-500 mt-1">Real-time store performance, perishable waste analytics & FEFO metrics.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-slate-500">Range:</span>
+                            <select class="bg-slate-50 border border-slate-200 text-xs rounded-xl p-2 font-medium focus:outline-none">
+                                <option>Last 7 Days</option>
+                                <option>This Month</option>
+                                <option>This Quarter</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-slate-500 text-xs font-medium mb-2">
+                                <span>Total Revenue Today</span>
+                                <i class="fa-solid fa-indian-rupee-sign text-brand-600"></i>
+                            </div>
+                            <div class="text-2xl font-extrabold text-slate-900">₹1,48,250</div>
+                            <div class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-trend-up"></i> +14.2% vs last week
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-slate-500 text-xs font-medium mb-2">
+                                <span>Food Waste Prevented</span>
+                                <i class="fa-solid fa-leaf text-brand-500"></i>
+                            </div>
+                            <div class="text-2xl font-extrabold text-slate-900">84.5%</div>
+                            <div class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-shield-halved"></i> 142 kg saved this week
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-slate-500 text-xs font-medium mb-2">
+                                <span>Near-Expiry Active Stock</span>
+                                <i class="fa-solid fa-clock text-amber-500"></i>
+                            </div>
+                            <div class="text-2xl font-extrabold text-amber-600">₹18,400</div>
+                            <div class="text-[11px] text-amber-600 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-triangle-exclamation"></i> 3 items critical (&lt;2 days)
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between text-slate-500 text-xs font-medium mb-2">
+                                <span>FEFO Compliance Score</span>
+                                <i class="fa-solid fa-rotate text-blue-500"></i>
+                            </div>
+                            <div class="text-2xl font-extrabold text-slate-900">96.8%</div>
+                            <div class="text-[11px] text-blue-600 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i> First-Expiry Auto-Deduction active
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Revenue vs Waste Line/Bar Chart -->
+                        <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-900 text-sm">Revenue & Food Loss Reduction Trend (₹)</h3>
+                                <span class="text-xs text-slate-400">Weekly Breakdown</span>
+                            </div>
+                            <div class="h-64 relative">
+                                <canvas id="chartRevenueTrend"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Wastage by Category Doughnut Chart -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-900 text-sm">Perishable Inventory Share</h3>
+                                <span class="text-xs text-slate-400">By Category</span>
+                            </div>
+                            <div class="h-56 relative flex items-center justify-center">
+                                <canvas id="chartCategoryShare"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: FRESH INVENTORY (ADDED) -->
+                <section id="view-inventory" class="view-panel space-y-6 hidden max-w-7xl mx-auto">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div>
+                            <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-boxes-stacked text-brand-600"></i> Fresh Produce & Perishable Inventory
+                            </h1>
+                            <p class="text-xs text-slate-500 mt-1">Manage grocery items, track expiry dates, prices, and stock status.</p>
+                        </div>
+                        <button onclick="promptAddNewItem()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add New Stock Batch
+                        </button>
+                    </div>
+
+                    <!-- Inventory Filter & Table -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div class="relative w-full sm:w-72">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                                <input type="text" id="inventorySearch" oninput="renderInventoryTable()" placeholder="Filter items..." class="w-full bg-slate-50 text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-600">
+                            </div>
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <select id="inventoryCategoryFilter" onchange="renderInventoryTable()" class="bg-slate-50 border border-slate-200 text-xs rounded-xl p-2 font-medium focus:outline-none">
+                                    <option value="all">All Categories</option>
+                                    <option value="Dairy & Eggs">Dairy & Paneer</option>
+                                    <option value="Vegetables">Vegetables</option>
+                                    <option value="Fruits">Fruits</option>
+                                    <option value="Atta & Grains">Atta & Grains</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-600">
+                                <thead class="bg-slate-50 text-slate-700 uppercase text-[10px] font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-3.5">Product Name</th>
+                                        <th class="p-3.5">Category</th>
+                                        <th class="p-3.5">Price (₹)</th>
+                                        <th class="p-3.5">Available Stock</th>
+                                        <th class="p-3.5">Expiry Window</th>
+                                        <th class="p-3.5">Risk Status</th>
+                                        <th class="p-3.5 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTableBody" class="divide-y divide-slate-100">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 5: ALERTS & RISKS (ADDED) -->
+                <section id="view-alerts" class="view-panel space-y-6 hidden max-w-7xl mx-auto">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                        <div>
+                            <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Near-Expiry & Spoilage Risk Alerts
+                            </h1>
+                            <p class="text-xs text-slate-500 mt-1">High-priority items requiring markdown action or shelf relocation.</p>
+                        </div>
+                        <button onclick="triggerAutoMarkdowns()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Auto-Apply Markdown All
+                        </button>
+                    </div>
+
+                    <div class="space-y-3" id="alertsListContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- SECTION 6: AI MARKDOWNS (ADDED) -->
+                <section id="view-recommendations" class="view-panel space-y-6 hidden max-w-7xl mx-auto">
+                    <div class="bg-gradient-to-r from-slate-900 to-emerald-900 text-white p-6 rounded-3xl shadow-lg border border-slate-800">
+                        <div class="flex items-center gap-3">
+                            <div class="p-3 bg-amber-400 text-slate-900 rounded-2xl font-bold text-xl">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl font-bold">AI Markdown Optimization Engine</h1>
+                                <p class="text-xs text-slate-300 mt-0.5">Dynamic price adjustments based on FEFO shelf-life decay and local store demand.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="markdownCardsContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- SECTION 7: REPORTS & ANALYTICS (ADDED) -->
+                <section id="view-reports" class="view-panel space-y-6 hidden max-w-7xl mx-auto">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-file-contract text-emerald-600"></i> Store Reports & Compliance Audits
+                            </h1>
+                            <p class="text-xs text-slate-500 mt-1">Export store sales summaries, tax breakdowns (GST), and wastage logs.</p>
+                        </div>
+                        <button onclick="downloadReport()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> Download Audit Report (.CSV)
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">Monthly Food Wastage Audit</h3>
+                            <div class="space-y-3 text-xs text-slate-600">
+                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                    <span>Total Perishables Stocked</span>
+                                    <span class="font-bold text-slate-800">4,250 kg</span>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                    <span>Billed & Sold via POS</span>
+                                    <span class="font-bold text-emerald-600">3,980 kg</span>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                    <span>Saved via AI Markdowns</span>
+                                    <span class="font-bold text-brand-600">182 kg</span>
+                                </div>
+                                <div class="flex justify-between py-1 text-rose-600 font-bold">
+                                    <span>Unsold / Spoiled Wastage</span>
+                                    <span>88 kg (2.07%)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">Store Tax & GST Breakdown</h3>
+                            <div class="space-y-3 text-xs text-slate-600">
+                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                    <span>Gross Sales (Including Tax)</span>
+                                    <span class="font-bold text-slate-800">₹8,45,200</span>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                    <span>5% GST (Dairy & Fresh Produce)</span>
+                                    <span class="font-bold text-slate-800">₹32,450</span>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                    <span>Total Discounts Honored</span>
+                                    <span class="font-bold text-amber-600">-₹18,900</span>
+                                </div>
+                                <div class="flex justify-between py-1 text-brand-700 font-extrabold">
+                                    <span>Net Store Margin</span>
+                                    <span>₹7,93,850</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 8: SYSTEM SETTINGS (ADDED) -->
+                <section id="view-settings" class="view-panel space-y-6 hidden max-w-7xl mx-auto">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-gear text-slate-700"></i> Store & System Configurations
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1">Configure threshold rules for expiry alerts and store POS integration.</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm mb-3">Expiry Alert Parameters</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Critical Expiry Warning Threshold</label>
+                                    <select class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none">
+                                        <option>2 Days before expiry (Recommended)</option>
+                                        <option>1 Day before expiry</option>
+                                        <option>3 Days before expiry</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Default AI Markdown Percentage</label>
+                                    <select class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none">
+                                        <option>15% Auto Discount</option>
+                                        <option>25% Auto Discount</option>
+                                        <option>35% Auto Discount</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-4">
+                            <h3 class="font-bold text-slate-900 text-sm mb-3">GST Tax Configuration</h3>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center gap-2 text-xs text-slate-700">
+                                    <input type="checkbox" checked class="rounded text-brand-600"> Auto-calculate 5% GST on Grocery Bills
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-4 flex justify-end">
+                            <button onclick="alert('Settings saved successfully!')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md">
+                                Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>
